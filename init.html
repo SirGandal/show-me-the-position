@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<img src="https://cdn.dribbble.com/users/127072/screenshots/1582404/pin-eye2.gif" style="width: 250px;"/>
+<br/>
+<input type="checkbox" id="enableHighAccuracy" checked>Enable High Accuracy</input>
+<p>Is a Boolean that indicates the application would like to receive the best possible results. If true and if the device is able to provide a more accurate position, it will do so. Note that this can result in slower response times or increased power consumption (with a GPS chip on a mobile device for example). On the other hand, if false, the device can take the liberty to save resources by responding more quickly and/or using less power. Default: false.</p>
+<input type="number" id="maximumAge" value=0> maximum age</input>
+<p>Is a positive long value indicating the maximum age in milliseconds of a possible cached position that is acceptable to return. If set to 0, it means that the device cannot use a cached position and must attempt to retrieve the real current position. If set to Infinity the device must return a cached position regardless of its age. Default: 0.</p>
+<input type="number" id="timeout" value=4000000000> timeout</input>
+<p>Is a positive long value representing the maximum length of time (in milliseconds) the device is allowed to take in order to return a position. The default value is Infinity, meaning that getCurrentPosition() won't return until the position is available.</p>
+<button style="width: 250px; height: 50px;"onclick="getLocation()">Start</button>
+<br>
+<button style="width: 250px; height: 50px;"onclick="stopGetLocation()">Stop</button>
+<p id="demo"></p>
+
+<script>
+var x = document.getElementById("demo");
+var watchId;
+
+function getLocation() {
+	let enableHighAccuracy = document.getElementById("enableHighAccuracy").checked;
+	let maximumAge = document.getElementById("maximumAge").value;
+	let timeout = document.getElementById("timeout").value;
+
+	let positionOptions = {};
+	positionOptions.enableHighAccuracy = enableHighAccuracy;
+	if(maximumAge !== "") {
+		positionOptions.maximumAge = Number(maximumAge);
+	}
+
+	if(timeout !== "") {
+		positionOptions.timeout = Number(timeout);
+	}
+
+    if (navigator.geolocation) {
+        watchId = navigator.geolocation.watchPosition(location => {
+			showPosition(location);
+			console.log(`lat: ${location.coords.latitude} - lng: ${location.coords.longitude}`);
+		}
+		, error => {
+			showError(error);
+			console.log(error);
+		}
+		,positionOptions);
+    } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+function stopGetLocation(){
+	navigator.geolocation.clearWatch(watchId);
+	x.innerHTML = x.innerHTML + "<br><br> Location stopped";
+}
+
+function showError(error) {
+    x.innerHTML = x.innerHTML + `<br><br> Error code: ${error.code} - Error message: ${error.message}`;
+}
+
+function showPosition(position) {
+	var d = new Date();
+	var hr = d.getHours();
+	var min = d.getMinutes();
+	if (min < 10) {
+		min = "0" + min;
+	}
+	var sec = d.getSeconds();
+	if (sec < 10) {
+		sec = "0" + sec;
+	}
+	x.innerHTML = x.innerHTML + `<br><br> <b>Location received at: ${hr}:${min}:${sec}</b> <br>Latitude: ${position.coords.latitude} <br>Longitude: ${position.coords.longitude}`;
+}
+</script>
+
+</body>
+</html>
